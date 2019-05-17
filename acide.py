@@ -8,11 +8,18 @@ class Acide(object):
 	#Constructeur
 	def __init__(self, sequence = np.random.random_integers(0,1,nb_links)):
 		self.sequence  = sequence
-		#self.neighbors = [] #Tableau d'acides ?
-		self.shearable = 0
-		self.rigid = 0
+		#self.rigid = 0
+		#self.shearable = 0
+		self.rigid = np.random.randint(2)
+		if (self.rigid == 1):
+			self.shearable = 0
+		else :
+			self.shearable = np.random.randint(2)
 		self.line = 0
 		self.column = 0
+		
+		
+		
 	"""	
 	Propagation de la rigidite : 
 	Input : r = 0 (row 0)
