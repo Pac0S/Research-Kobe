@@ -53,9 +53,10 @@ class Protein(object):
 				#On compte le nombre de voisins (sur 5) rigides lies a chaque acide amine 
 				for neighbor in range (i - 2, i + 3):
 					if neighbor >= Protein.w-1 :
-						neighbor2 = neighbor - Protein.w-1
+						neighbor2 = neighbor - Protein.w - 1
 					else :
 						neighbor2 =neighbor
+					print(neighbor2)
 					#print(neighbor2)
 					#print(link)
 					if self.proteome[i,j].sequence[link]!=0 :
@@ -72,13 +73,13 @@ class Protein(object):
 				link = 0
 				#On compte le nombre (sur 3) de voisins shearables lies a chaque acide amine
 				for neighbor in range (i - 1, i + 2):
-					if neighbor >= Protein.h-1 :
-						neighbor2 = neighbor - Protein.h
+					if neighbor >= Protein.w - 1 :
+						neighbor2 = neighbor - Protein.w - 1
 						
 					else :
 						neighbor2 =neighbor
 						
-					if self.proteome[i,j].sequence[link]!=0 :
+					if self.proteome[i,j].sequence[link+1]!=0 :
 						if self.proteome[neighbor2, j-1].shearable == 1 :
 
 							
