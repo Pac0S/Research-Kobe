@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import acide as ac
+import time
 
 class Protein(object):
 	#Variables globales
@@ -80,14 +81,11 @@ class Protein(object):
 						neighbor2 =neighbor
 						
 					if self.proteome[i,j].sequence[link+1]!=0 :
-						if self.proteome[neighbor2, j-1].shearable == 1 :
-
-							
+						if self.proteome[neighbor2, j-1].shearable == 1 :	
 							shearable += 1
 					link += 1
 				
-				
-				
+	
 				if  rigid >=2 :
 					#print("abc")
 					self.proteome[i,j].rigid = 1
@@ -106,7 +104,12 @@ class Protein(object):
 				if self.proteome[i,j].rigid == 1 :
 					self.proteome[i,j].shearable = 0 #Interdit d'avoir rigid et shearable
 					
-					
+	
+	
+	
+	
+	
+	#Modifier pour n'accepter que les mutations favorables ou neutres				
 	def mut_prot(self):
 		#Mutation genome et mise a jour sequence acide amine
 		line = np.random.random_integers(self.h-1)
@@ -118,14 +121,23 @@ class Protein(object):
 		column_prot = column//ac.Acide.nb_links
 		index = column%ac.Acide.nb_links
 		
+		"""
 		print("Genome column : ", column)
 		print("Genome line : ", line)
 		print("Proteome column : ", column_prot)
 		print("Index of mutation : " ,index)
+		"""
 		self.proteome[column_prot, line].mutation(index)
 		
 		
+
+
+
+	def run_once(self) :
+		self.mut_prot()
+		self.update_prot()
 		
+
 		
 if __name__ == "__main__":
 
