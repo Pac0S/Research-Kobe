@@ -47,16 +47,16 @@ class Protein(object):
 			for i in range (Protein.w) :
 				rigid = 0
 				shearable = 0
-				link = 0
 				
 				
+				link = 0	
 				#On compte le nombre de voisins (sur 5) rigides lies a chaque acide amine 
 				for neighbor in range (i - 2, i + 3):
 					if neighbor >= Protein.w-1 :
 						neighbor2 = neighbor - Protein.w - 1
 					else :
 						neighbor2 =neighbor
-					print(neighbor2)
+					#print(neighbor2)
 					#print(neighbor2)
 					#print(link)
 					if self.proteome[i,j].sequence[link]!=0 :
@@ -98,14 +98,35 @@ class Protein(object):
 					
 				if shearable >=1 and self.proteome[i,j].rigid == 0:
 					self.proteome[i,j].shearable = 1
-					if self.proteome[i, j].line == 1:
-						print(i,j)
+					#if self.proteome[i, j].line == 1:
+						#print(i,j)
 				else :
 					self.proteome[i,j].shearable = 0
 					
 				if self.proteome[i,j].rigid == 1 :
 					self.proteome[i,j].shearable = 0 #Interdit d'avoir rigid et shearable
 					
+					
+	def mut_prot(self):
+		#Mutation genome et mise a jour sequence acide amine
+		line = np.random.random_integers(self.h-1)
+		column = np.random.random_integers(self.w*ac.Acide.nb_links-1) #Attention les colonnes du genome sont 5* plus nombreuses que celles du  proteome
+		if self.genome[column,line]==0 :
+			self.genome[column,line]==1
+		else :
+			self.genome[column,line]==0
+		column_prot = column//ac.Acide.nb_links
+		index = column%ac.Acide.nb_links
+		
+		print("Genome column : ", column)
+		print("Genome line : ", line)
+		print("Proteome column : ", column_prot)
+		print("Index of mutation : " ,index)
+		self.proteome[column_prot, line].mutation(index)
+		
+		
+		
+		
 if __name__ == "__main__":
 
 

@@ -70,13 +70,14 @@ if __name__ == "__main__":
 			#print(proteine.proteome[i][j].shearable)
 			tabrig[i][j] = proteine.proteome[i][j].rigid
 			
-	for i in range (proteine.w):
-		print(proteine.proteome[i,1].sequence)
+	#for i in range (proteine.w):
+		#print(proteine.proteome[i,1].sequence)
 			
 	#print(tabshear)
 	#print(tabrig)
 	
-	#mysquare.create_oval(120, 60, 200, 120, fill = "Blue")
+	proteine.mut_prot()
+	proteine.update_prot()
 	mysquare.draw_ovals(proteine.proteome)
 	mafenetre.mainloop()
 	
