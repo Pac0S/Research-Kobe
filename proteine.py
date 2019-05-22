@@ -5,13 +5,14 @@ import time
 
 class Protein(object):
 	#Variables globales
-	h = 18 #Columns
-	w = 30 #Lines
+	h = 9 #Columns
+	w = 15 #Lines
+	output = [1]*(w//3)+[0]*5+[1]*(w - w//3 -5)
 
-
-	def __init__(self, genome = np.random.randint(2, size=(30*ac.Acide.nb_links, 18)) , proteome = np.empty([30, 18], dtype = object)):
+	def __init__(self, genome = np.random.randint(2, size=(15*ac.Acide.nb_links, 9)) , proteome = np.empty([15, 9], dtype = object)):
 		self.genome = genome
 		self.proteome = proteome
+		self.mutations = [0,0,0]#Mutations [Positives, egales, deletaires]
 		
 		for i in range (Protein.w) :
 			for j in range (Protein.h) :
@@ -41,8 +42,6 @@ class Protein(object):
 	#def mutation
 			
 	#Mise a jour de la proteine en fonction des aa voisins  (au dela d'une certaine ligne pour eviter les operations inutiles apres mutations)
-	
-	#A modifier : Faire en sorte que les indices des voisins soient bien sur la ligne precedente sur les bords
 	def update_prot(self):
 		for j in range (1, Protein.h) :
 			for i in range (Protein.w) :
@@ -104,13 +103,22 @@ class Protein(object):
 				if self.proteome[i,j].rigid == 1 :
 					self.proteome[i,j].shearable = 0 #Interdit d'avoir rigid et shearable
 					
-	
-	
-	
+	#Calcul fitness proteine
+	def fitness(self):
+		fit = 0
+		for i in range (Protein.w):
+			if self.proteome[i, 0] == Protein.output[i]:
+				fit += 1
+		return fit
+			
+		
 	
 	
 	#Modifier pour n'accepter que les mutations favorables ou neutres				
 	def mut_prot(self):
+		#Sauvegarde proteine en cas de mutation deletaire
+		prot = self
+				
 		#Mutation genome et mise a jour sequence acide amine
 		line = np.random.random_integers(self.h-1)
 		column = np.random.random_integers(self.w*ac.Acide.nb_links-1) #Attention les colonnes du genome sont 5* plus nombreuses que celles du  proteome
@@ -128,6 +136,17 @@ class Protein(object):
 		print("Index of mutation : " ,index)
 		"""
 		self.proteome[column_prot, line].mutation(index)
+		#On refuse les mutations délétaires
+		if self.fitness() < prot.fitness() :
+			self = prot
+			self.mutations[2]+=1
+			print("mutation -")
+		elif self.fitness() > prot.fitness() :
+			self.mutations[0]+=1
+			print("mutation +")
+		else :
+			self.mutations[1]+=1
+			#print("mutation =")
 		
 		
 
@@ -150,7 +169,7 @@ if __name__ == "__main__":
 	
 	#Test methode set_input
 	
-	rigid_input = np.random.random_integers(0,1,30)
+	rigid_input = np.random.random_integers(0,1,Protein.w)
 	proteine.set_input(rigid_input)
 	
 	"""

@@ -5,7 +5,7 @@ import time
 
 class WorldView(tk.Canvas):
 	
-	def __init__(self, window, w=600, h=360, color="black"):
+	def __init__(self, window, w=pt.Protein.w * 20, h=pt.Protein.h * 20, color="black"):
 		tk.Canvas.__init__(self, window, width = w, height = h, bg = color) 
 		self.window = window
 		self.width = w
@@ -79,10 +79,10 @@ if __name__ == "__main__":
 			proteine.run_once()
 			mysquare.update_ovals(proteine.proteome)
 			
-			space = (1/500)*1000
-			mafenetre.after(int(space),run)
+			space = (1/1000)*1000
+			mafenetre.after(1,run)
 		execution_time = time.time()-start_time
-		print(execution_time)
+		#print(execution_time)
 		
 		
 	def switch_play():
@@ -94,7 +94,8 @@ if __name__ == "__main__":
 	def draw_aa():
 		global proteine, mysquare
 		proteine = pt.Protein()
-		rigid_input = [1]*10+[0]*5+[1]*15
+		rest = pt.Protein.w - pt.Protein.w//3 -5
+		rigid_input = [1]*(pt.Protein.w//3)+[0]*5+[1]*rest
 		proteine.set_input(rigid_input)
 		proteine.update_prot()	
 		mysquare.draw_ovals(proteine.proteome)
