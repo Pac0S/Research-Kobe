@@ -9,7 +9,7 @@ class Protein(object):
 	#Variables globales
 	h = 9 #Columns
 	w = 15 #Lines
-	output = [[1]*(w//3)+[0]*5+[1]*(w - w//3 -5),[0]*(w//3)+[1]*5+[0]*(w - w//3 -5)]
+	output = [[1]*(w//3)+[0]*5+[1]*(w - w//3 -5),[0]*(w//3)+[1]*5+[0]*(w - w//3 -5)] #[Rigid sequence, Shearable sequence]
 
 	def __init__(self, genome = np.random.randint(2, size=(15*ac.Acide.nb_links, 9)) , proteome = np.empty([15, 9], dtype = object)):
 		self.genome = genome
@@ -147,7 +147,6 @@ class Protein(object):
 		
 		#print(self.fitness, prot_cop.fitness)
 		#On refuse les mutations délétaires
-		print (self.fitness, prot_cop.fitness)
 		if self.fitness < prot_cop.fitness :
 			if self.genome[column,line]==0 :
 				self.genome[column,line]==1
@@ -159,16 +158,16 @@ class Protein(object):
 			self.update_prot()
 			
 			self.mutations[2]+=1
-			print("mutation -\n")
+			#print("mutation -\n")
 			
 		elif self.fitness > prot_cop.fitness:
 			self.mutations[0]+=1
 			print (self.fitness, prot_cop.fitness)
-			print("mutation +\n")	
+			#print("mutation +\n")	
 			
 		else :
 			self.mutations[1]+=1
-			print("mutation =\n")
+			#print("mutation =\n")
 		
 		
 
@@ -177,6 +176,7 @@ class Protein(object):
 	def run_once(self) :
 		self.mut_prot()
 		self.update_prot()
+		print(self.mutations)
 		
 
 		

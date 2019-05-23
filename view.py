@@ -45,10 +45,21 @@ class WorldView(tk.Canvas):
 					#print(aa.column*10,aa.line*10, (aa.column+1)*10, (aa.line+1)*10, "Draw black")
 					self.list_ovals[i,j] = oval
 		for i in range(proteome.shape[0]):
-			oval = self.create_oval(i*20, (proteome.shape[1])*20, (i+1)*20, (proteome.shape[1]+1)*20, fill = "Grey")
-			
-		print(proteome.shape)
-	
+			self.create_oval(i*20, (proteome.shape[1])*20, (i+1)*20, (proteome.shape[1]+1)*20, fill = "Grey")
+
+		for i in range(proteome.shape[0]):
+			if pt.Protein.output[0][i] == 0 and pt.Protein.output[1][i] == 0 :
+				self.create_oval(i*20, (proteome.shape[1]+1)*20, (i+1)*20, (proteome.shape[1]+2)*20, fill = "Red")
+				print('red')
+				
+			elif pt.Protein.output[0][i] == 0 and pt.Protein.output[1][i] == 1 :
+				self.create_oval(i*20, (proteome.shape[1]+1)*20, (i+1)*20, (proteome.shape[1]+2)*20, fill = "Blue")
+				print('blue')
+			elif pt.Protein.output[0][i] == 1 and pt.Protein.output[1][i] == 0 :
+				self.create_oval(i*20, (proteome.shape[1]+1)*20, (i+1)*20, (proteome.shape[1]+2)*20, fill = "Yellow")
+			else :
+				self.create_oval(i*20, (proteome.shape[1]+1)*20, (i+1)*20, (proteome.shape[1]+2)*20, fill = "Grey")
+				
 	def update_ovals(self,proteome): #updates the number of agents in each state too
 		for i in range (proteine.w):
 			for j in range (proteine.h):
@@ -79,6 +90,8 @@ if __name__ == "__main__":
 		start_time = time.time()
 		global proteine
 		global mysquare
+		if proteine.fitness == proteine.w :
+			mysquare.pause = True
 		if mysquare.pause == False:
 			proteine.run_once()
 			mysquare.update_ovals(proteine.proteome)
