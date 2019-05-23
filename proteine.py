@@ -2,17 +2,20 @@ import numpy as np
 import random
 import acide as ac
 import time
+from copy import deepcopy
+from copy import copy
 
 class Protein(object):
 	#Variables globales
 	h = 9 #Columns
 	w = 15 #Lines
-	output = [1]*(w//3)+[0]*5+[1]*(w - w//3 -5)
+	output = [[1]*(w//3)+[0]*5+[1]*(w - w//3 -5),[0]*(w//3)+[1]*5+[0]*(w - w//3 -5)]
 
 	def __init__(self, genome = np.random.randint(2, size=(15*ac.Acide.nb_links, 9)) , proteome = np.empty([15, 9], dtype = object)):
 		self.genome = genome
 		self.proteome = proteome
 		self.mutations = [0,0,0]#Mutations [Positives, egales, deletaires]
+		self.fitness =  0
 		
 		for i in range (Protein.w) :
 			for j in range (Protein.h) :
@@ -38,8 +41,14 @@ class Protein(object):
 			if rigid_list[i] == 1 :
 				self.proteome[i,0].shearable = 0#Il est interdit d'avoir un aa rigide et shearable
 			
-	#Mutation aleatoire dans le genome --> mise a jour sequence acide amine
-	#def mutation
+	
+	def update_fitness(self):
+		self.fitness = 0
+		for i in range (Protein.w):
+			aa = self.proteome[i, Protein.h-1]
+			if aa.shearable == Protein.output[1][i] and aa.rigid == Protein.output[0][i]:
+				self.fitness += 1
+
 			
 	#Mise a jour de la proteine en fonction des aa voisins  (au dela d'une certaine ligne pour eviter les operations inutiles apres mutations)
 	def update_prot(self):
@@ -102,14 +111,9 @@ class Protein(object):
 					
 				if self.proteome[i,j].rigid == 1 :
 					self.proteome[i,j].shearable = 0 #Interdit d'avoir rigid et shearable
+		self.update_fitness()
 					
-	#Calcul fitness proteine
-	def fitness(self):
-		fit = 0
-		for i in range (Protein.w):
-			if self.proteome[i, 0] == Protein.output[i]:
-				fit += 1
-		return fit
+
 			
 		
 	
@@ -117,10 +121,10 @@ class Protein(object):
 	#Modifier pour n'accepter que les mutations favorables ou neutres				
 	def mut_prot(self):
 		#Sauvegarde proteine en cas de mutation deletaire
-		prot = self
-				
+		prot_cop = copy(self)
+						
 		#Mutation genome et mise a jour sequence acide amine
-		line = np.random.random_integers(self.h-1)
+		line = np.random.random_integers(self.h-1)#On choisit une ligne et une colonne a muter aleatoirement dans le genome
 		column = np.random.random_integers(self.w*ac.Acide.nb_links-1) #Attention les colonnes du genome sont 5* plus nombreuses que celles du  proteome
 		if self.genome[column,line]==0 :
 			self.genome[column,line]==1
@@ -135,18 +139,36 @@ class Protein(object):
 		print("Proteome column : ", column_prot)
 		print("Index of mutation : " ,index)
 		"""
+		
+		#Mise a jour de l'acide amine
 		self.proteome[column_prot, line].mutation(index)
+		#Mise a jour des proprietes de l'aa
+		self.update_prot()
+		
+		#print(self.fitness, prot_cop.fitness)
 		#On refuse les mutations délétaires
-		if self.fitness() < prot.fitness() :
-			self = prot
+		print (self.fitness, prot_cop.fitness)
+		if self.fitness < prot_cop.fitness :
+			if self.genome[column,line]==0 :
+				self.genome[column,line]==1
+			else :
+				self.genome[column,line]==0
+			#Mise a jour de l'acide amine
+			self.proteome[column_prot, line].mutation(index)
+			#Mise a jour des proprietes de l'aa
+			self.update_prot()
+			
 			self.mutations[2]+=1
-			print("mutation -")
-		elif self.fitness() > prot.fitness() :
+			print("mutation -\n")
+			
+		elif self.fitness > prot_cop.fitness:
 			self.mutations[0]+=1
-			print("mutation +")
+			print (self.fitness, prot_cop.fitness)
+			print("mutation +\n")	
+			
 		else :
 			self.mutations[1]+=1
-			#print("mutation =")
+			print("mutation =\n")
 		
 		
 

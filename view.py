@@ -5,7 +5,7 @@ import time
 
 class WorldView(tk.Canvas):
 	
-	def __init__(self, window, w=pt.Protein.w * 20, h=pt.Protein.h * 20, color="black"):
+	def __init__(self, window, w=pt.Protein.w * 20, h=(pt.Protein.h+2) * 20, color="black"):
 		tk.Canvas.__init__(self, window, width = w, height = h, bg = color) 
 		self.window = window
 		self.width = w
@@ -44,6 +44,10 @@ class WorldView(tk.Canvas):
 					oval = self.create_oval(aa.column*20, aa.line*20, (aa.column+1)*20, (aa.line+1)*20, fill = "Black")
 					#print(aa.column*10,aa.line*10, (aa.column+1)*10, (aa.line+1)*10, "Draw black")
 					self.list_ovals[i,j] = oval
+		for i in range(proteome.shape[0]):
+			oval = self.create_oval(i*20, (proteome.shape[1])*20, (i+1)*20, (proteome.shape[1]+1)*20, fill = "Grey")
+			
+		print(proteome.shape)
 	
 	def update_ovals(self,proteome): #updates the number of agents in each state too
 		for i in range (proteine.w):

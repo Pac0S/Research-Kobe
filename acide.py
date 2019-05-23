@@ -24,6 +24,18 @@ class Acide(object):
 			self.sequence[link]=1
 		else:
 			self.sequence[link]=0
+			
+	def _shearable(self) :
+		s = 0
+		if self.shearable == 1 :
+			s = 1
+		return s
+		
+	def _rigid(self) :
+		s = 0
+		if self.rigid == 1 :
+			s = 1
+		return s
 		
 		
 		
