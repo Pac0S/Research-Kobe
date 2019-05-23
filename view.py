@@ -14,6 +14,7 @@ class WorldView(tk.Canvas):
 		self.spacelines = 0
 		self.list_ovals = np.empty([pt.Protein.w, pt.Protein.h], dtype = object)
 		self.pause = True
+		self.time = 0
 		
 	def switch(self):
 		if self.pause ==False:
@@ -50,11 +51,11 @@ class WorldView(tk.Canvas):
 		for i in range(proteome.shape[0]):
 			if pt.Protein.output[0][i] == 0 and pt.Protein.output[1][i] == 0 :
 				self.create_oval(i*20, (proteome.shape[1]+1)*20, (i+1)*20, (proteome.shape[1]+2)*20, fill = "Red")
-				print('red')
+				#print('red')
 				
 			elif pt.Protein.output[0][i] == 0 and pt.Protein.output[1][i] == 1 :
 				self.create_oval(i*20, (proteome.shape[1]+1)*20, (i+1)*20, (proteome.shape[1]+2)*20, fill = "Blue")
-				print('blue')
+				#print('blue')
 			elif pt.Protein.output[0][i] == 1 and pt.Protein.output[1][i] == 0 :
 				self.create_oval(i*20, (proteome.shape[1]+1)*20, (i+1)*20, (proteome.shape[1]+2)*20, fill = "Yellow")
 			else :
@@ -98,14 +99,17 @@ if __name__ == "__main__":
 			
 			space = (1/1000)*1000
 			mafenetre.after(1,run)
-		execution_time = time.time()-start_time
+	
+		ex_time = time.time()-start_time
+		mysquare.time += ex_time
+		if mysquare.pause == True:
+			print(mysquare.time)
 		#print(execution_time)
 		
 		
 	def switch_play():
 		mysquare.switch()
-		if mysquare.pause ==False:
-			run()
+		run()
 			
 			
 	def draw_aa():
@@ -158,31 +162,8 @@ if __name__ == "__main__":
 	"""
 	
 	
-	"""
-	tabshear = np.zeros((proteine.w, proteine.h))
-	for i in range (proteine.w):
-		for j in range (proteine.h):
-			#print(proteine.proteome[i][j].shearable)
-			tabshear[i][j] = proteine.proteome[i][j].shearable
-			
-	tabrig = np.zeros((proteine.w, proteine.h))
-	for i in range (proteine.w):
-		for j in range (proteine.h):
-			#print(proteine.proteome[i][j].shearable)
-			tabrig[i][j] = proteine.proteome[i][j].rigid
-	"""		
-			
-	#print(tabshear)
-	#print(tabrig)
-	
-	
-	
 	
 	####Display of Canvas####
-	"""
-	mysquare.draw_ovals(proteine.proteome)
-	run()
-	"""
 	mafenetre.mainloop()
 	
 	

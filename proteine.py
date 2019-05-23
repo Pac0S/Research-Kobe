@@ -17,24 +17,18 @@ class Protein(object):
 		self.mutations = [0,0,0]#Mutations [Positives, egales, deletaires]
 		self.fitness =  0
 		
+		
 		for i in range (Protein.w) :
-			for j in range (Protein.h) :
-			
-				aminoacid = ac.Acide(genome[5 * i : 5 * i + 5, j])
-		
+			for j in range (Protein.h) :		
+				aminoacid = ac.Acide(genome[5 * i : 5 * i + 5, j])		
 				aminoacid.line = j #La liste commence en bas a gauche : de 0 a 17
-				aminoacid.column = i #de 0 a 29
-				
+				aminoacid.column = i #de 0 a 29			
 				self.proteome[i,j] = aminoacid
-				
-				#print(i, j)
-				#print("Nouvel acide")
-				#print(aminoacid.sequence)
-		
+
 					
-	#states est un tableau de 1 et 0 qui donne la rigidite des aa en premiere ligne. sig = 0 entraine s = 0
+	#riggid_list est un tableau de 1 et 0 qui donne la rigidite des aa en premiere ligne. sig = 0 entraine s = 1
 	def set_input(self, rigid_list):
-		for i in range(Protein.w) : #La taille de la liste doit etre egale a w = 30
+		for i in range(Protein.w) : #La taille de la liste doit etre egale a w 
 			self.proteome[i,0].rigid = rigid_list[i]
 			if rigid_list[i] == 0:
 				self.proteome[i,0].shearable = 1 #Tous les aa fluides en premiere ligne sont shearables
@@ -65,18 +59,10 @@ class Protein(object):
 						neighbor2 = neighbor - Protein.w - 1
 					else :
 						neighbor2 =neighbor
-					#print(neighbor2)
-					#print(neighbor2)
-					#print(link)
 					if self.proteome[i,j].sequence[link]!=0 :
 						if self.proteome[neighbor2, j-1].rigid == 1 :
 							rigid += 1
-							#print("ligne = ", self.proteome[neighbor2, j-1].line)
-							#print(j)
 					link += 1
-					#print("")
-				#print("stop")
-
 
 
 				link = 0
@@ -84,18 +70,15 @@ class Protein(object):
 				for neighbor in range (i - 1, i + 2):
 					if neighbor >= Protein.w - 1 :
 						neighbor2 = neighbor - Protein.w - 1
-						
 					else :
-						neighbor2 =neighbor
-						
+						neighbor2 =neighbor				
 					if self.proteome[i,j].sequence[link+1]!=0 :
 						if self.proteome[neighbor2, j-1].shearable == 1 :	
 							shearable += 1
 					link += 1
 				
-	
+				#Mise a jour des proprietes de l'acide
 				if  rigid >=2 :
-					#print("abc")
 					self.proteome[i,j].rigid = 1
 				else :
 					self.proteome[i,j].rigid = 0
@@ -104,8 +87,6 @@ class Protein(object):
 					
 				if shearable >=1 and self.proteome[i,j].rigid == 0:
 					self.proteome[i,j].shearable = 1
-					#if self.proteome[i, j].line == 1:
-						#print(i,j)
 				else :
 					self.proteome[i,j].shearable = 0
 					
@@ -162,7 +143,7 @@ class Protein(object):
 			
 		elif self.fitness > prot_cop.fitness:
 			self.mutations[0]+=1
-			print (self.fitness, prot_cop.fitness)
+			#print (self.fitness, prot_cop.fitness)
 			#print("mutation +\n")	
 			
 		else :
@@ -176,7 +157,7 @@ class Protein(object):
 	def run_once(self) :
 		self.mut_prot()
 		self.update_prot()
-		print(self.mutations)
+		#print(self.mutations)
 		
 
 		
@@ -211,28 +192,28 @@ if __name__ == "__main__":
 	tabshear = np.zeros((proteine.w, proteine.h))
 	for i in range (proteine.w):
 		for j in range (proteine.h):
-			print(proteine.proteome[i][j].shearable)
+			#print(proteine.proteome[i][j].shearable)
 			tabshear[i][j] = proteine.proteome[i][j].shearable
 			
 	tabrig = np.zeros((proteine.w, proteine.h))
 	for i in range (proteine.w):
 		for j in range (proteine.h):
-			print(proteine.proteome[i][j].shearable)
+			#print(proteine.proteome[i][j].shearable)
 			tabrig[i][j] = proteine.proteome[i][j].rigid
 			
-	print(tabshear)
-	print(tabrig)
+	#print(tabshear)
+	#print(tabrig)
 	
 	
 	somme = 0
 	for i in range(proteine.w):
 		somme += sum(aci.shearable==1 for aci in proteine.proteome[i])
-	print (somme) #Nombre d'aa shearables (15)
+	#print (somme) #Nombre d'aa shearables (15)
 	
 	somme = 0
 	for i in range(proteine.w):
 		somme += sum(aci.rigid==1 for aci in proteine.proteome[i])
-	print(somme) #Nombre d'aa rigides (50)
+	#print(somme) #Nombre d'aa rigides (50)
 	
 
 	
