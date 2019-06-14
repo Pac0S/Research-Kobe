@@ -3,6 +3,7 @@ import proteine as pt
 import numpy as np
 import time
 
+
 class WorldView(tk.Canvas):
 	
 	def __init__(self, window, w=pt.Protein.w * 20, h=(pt.Protein.h+2) * 20, color="black"):
@@ -104,6 +105,7 @@ if __name__ == "__main__":
 		mysquare.time += ex_time
 		if mysquare.pause == True:
 			print(mysquare.time)
+			print (proteine.mutations)
 		#print(execution_time)
 		
 		

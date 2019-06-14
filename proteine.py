@@ -2,16 +2,17 @@ import numpy as np
 import random
 import acide as ac
 import time
-from copy import deepcopy
 from copy import copy
+from os import system
+
 
 class Protein(object):
 	#Variables globales
-	h = 9 #Columns
-	w = 15 #Lines
+	h = 18 #Columns
+	w = 30 #Lines
 	output = [[1]*(w//3)+[0]*5+[1]*(w - w//3 -5),[0]*(w//3)+[1]*5+[0]*(w - w//3 -5)] #[Rigid sequence, Shearable sequence]
 
-	def __init__(self, genome = np.random.randint(2, size=(15*ac.Acide.nb_links, 9)) , proteome = np.empty([15, 9], dtype = object)):
+	def __init__(self, genome = np.random.randint(2, size=(30*ac.Acide.nb_links, 18)) , proteome = np.empty([30, 18], dtype = object)):
 		self.genome = genome
 		self.proteome = proteome
 		self.mutations = [0,0,0]#Mutations [Positives, egales, deletaires]
@@ -48,15 +49,16 @@ class Protein(object):
 	def update_prot(self):
 		for j in range (1, Protein.h) :
 			for i in range (Protein.w) :
-				rigid = 0
-				shearable = 0
+				rigid = 0 #Nombre de voisins connectés rigides (<=5)
+				shearable = 0 #Nombre de voisins connectés shearables (<=3)
 				
 				
-				link = 0	
+				link = 0 #Indice du lien avec le voisin (0-4)
 				#On compte le nombre de voisins (sur 5) rigides lies a chaque acide amine 
 				for neighbor in range (i - 2, i + 3):
 					if neighbor >= Protein.w-1 :
 						neighbor2 = neighbor - Protein.w - 1
+						#Certains voisins du bord droit sont au bord gauche. Pas besoin pour bord gauche car indice negatif = fin de liste
 					else :
 						neighbor2 =neighbor
 					if self.proteome[i,j].sequence[link]!=0 :
@@ -65,17 +67,17 @@ class Protein(object):
 					link += 1
 
 
-				link = 0
+				#link = 0
 				#On compte le nombre (sur 3) de voisins shearables lies a chaque acide amine
 				for neighbor in range (i - 1, i + 2):
 					if neighbor >= Protein.w - 1 :
 						neighbor2 = neighbor - Protein.w - 1
 					else :
 						neighbor2 =neighbor				
-					if self.proteome[i,j].sequence[link+1]!=0 :
-						if self.proteome[neighbor2, j-1].shearable == 1 :	
-							shearable += 1
-					link += 1
+					#if self.proteome[i,j].sequence[link+1]!=0 :
+					if self.proteome[neighbor2, j-1].shearable == 1 :	
+						shearable += 1
+					#link += 1
 				
 				#Mise a jour des proprietes de l'acide
 				if  rigid >=2 :
@@ -93,11 +95,13 @@ class Protein(object):
 				if self.proteome[i,j].rigid == 1 :
 					self.proteome[i,j].shearable = 0 #Interdit d'avoir rigid et shearable
 		self.update_fitness()
+		for i in range(Protein.w):
+			print(i, self.proteome[i,1].sequence)
 					
 
-			
-		
-	
+
+
+
 	
 	#Modifier pour n'accepter que les mutations favorables ou neutres				
 	def mut_prot(self):
@@ -143,6 +147,8 @@ class Protein(object):
 			
 		elif self.fitness > prot_cop.fitness:
 			self.mutations[0]+=1
+			print(self.mutations)
+			print('\007')
 			#print (self.fitness, prot_cop.fitness)
 			#print("mutation +\n")	
 			
