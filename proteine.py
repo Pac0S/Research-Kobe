@@ -59,6 +59,8 @@ class Protein(object):
 					if neighbor >= Protein.w-1 :
 						neighbor2 = neighbor - Protein.w - 1
 						#Certains voisins du bord droit sont au bord gauche. Pas besoin pour bord gauche car indice negatif = fin de liste
+					elif neighbor < 0 :
+						neighbor2 = Protein.w + neighbor
 					else :
 						neighbor2 =neighbor
 					if self.proteome[i,j].sequence[link]!=0 :
@@ -72,6 +74,8 @@ class Protein(object):
 				for neighbor in range (i - 1, i + 2):
 					if neighbor >= Protein.w - 1 :
 						neighbor2 = neighbor - Protein.w - 1
+					elif neighbor < 0 :
+						neighbor2 = Protein.w + neighbor
 					else :
 						neighbor2 =neighbor				
 					#if self.proteome[i,j].sequence[link+1]!=0 :
@@ -95,9 +99,15 @@ class Protein(object):
 				if self.proteome[i,j].rigid == 1 :
 					self.proteome[i,j].shearable = 0 #Interdit d'avoir rigid et shearable
 		self.update_fitness()
-		for i in range(Protein.w):
-			print(i, self.proteome[i,1].sequence)
-					
+		myfile = open("data.txt", "w+")
+		
+		"""
+		for j in range(10):
+			myfile.write("\n\n\n Line " +  str(j) + "\n\n")
+			for i in range(Protein.w):
+				myfile.write(str(i) + " : " + str(self.proteome[i,j].sequence)+ "\n Rigid : " + str(self.proteome[i,j].rigid) + " ||| Shearable : " + str(self.proteome[i,j].shearable) + "\n\n")
+				#print(i, self.proteome[i,1].sequence)
+		"""
 
 
 
