@@ -4,6 +4,9 @@ import acide as ac
 import time
 from copy import copy
 from os import system
+import matplotlib as mpl
+#from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
 
 
 class Protein(object):
@@ -12,10 +15,19 @@ class Protein(object):
 	w = 30 #Lines
 	output = [[1]*(w//3)+[0]*5+[1]*(w - w//3 -5),[0]*(w//3)+[1]*5+[0]*(w - w//3 -5)] #[Rigid sequence, Shearable sequence]
 
-	def __init__(self, genome = np.random.randint(2, size=(30*ac.Acide.nb_links, 18)) , proteome = np.empty([30, 18], dtype = object)):
+	#def __init__(self, genome = np.random.randint(2, size=(30*ac.Acide.nb_links, 18)) , proteome = np.empty([30, 18], dtype = object)):
+	def __init__(self, genome = np.random.choice(2, size=(30*ac.Acide.nb_links, 18), p = [0.3,0.7]) , proteome = np.empty([30, 18], dtype = object)):
 		self.genome = genome
 		self.proteome = proteome
 		self.mutations = [0,0,0]#Mutations [Positives, egales, deletaires]
+		self.mut_plus = []
+		self.mut_plus_count = 0
+		self.mut_less = []
+		self.mut_less_count = 0
+		self.mut_none =  []
+		self.mut_none_count = 0
+		self.timeline = []
+		self.time = 0
 		self.fitness =  0
 		
 		
@@ -43,6 +55,8 @@ class Protein(object):
 			aa = self.proteome[i, Protein.h-1]
 			if aa.shearable == Protein.output[1][i] and aa.rigid == Protein.output[0][i]:
 				self.fitness += 1
+				
+		
 
 			
 	#Mise a jour de la proteine en fonction des aa voisins  (au dela d'une certaine ligne pour eviter les operations inutiles apres mutations)
@@ -99,9 +113,10 @@ class Protein(object):
 				if self.proteome[i,j].rigid == 1 :
 					self.proteome[i,j].shearable = 0 #Interdit d'avoir rigid et shearable
 		self.update_fitness()
-		myfile = open("data.txt", "w+")
 		
 		"""
+		#Write in file the values of rigid and sheable for the aa of the 11 first lines
+		myfile = open("data.txt", "w+")
 		for j in range(10):
 			myfile.write("\n\n\n Line " +  str(j) + "\n\n")
 			for i in range(Protein.w):
@@ -153,10 +168,18 @@ class Protein(object):
 			self.update_prot()
 			
 			self.mutations[2]+=1
+			self.mut_less_count+=1
+			self.mut_plus.append(self.mut_plus_count)
+			self.mut_less.append(self.mut_less_count)
+			self.mut_none.append(self.mut_none_count)
 			#print("mutation -\n")
 			
 		elif self.fitness > prot_cop.fitness:
 			self.mutations[0]+=1
+			self.mut_plus_count+=1
+			self.mut_plus.append(self.mut_plus_count)
+			self.mut_less.append(self.mut_less_count)
+			self.mut_none.append(self.mut_none_count)
 			print(self.mutations)
 			print('\007')
 			#print (self.fitness, prot_cop.fitness)
@@ -164,7 +187,13 @@ class Protein(object):
 			
 		else :
 			self.mutations[1]+=1
+			self.mut_none_count+=1
+			self.mut_plus.append(self.mut_plus_count)
+			self.mut_less.append(self.mut_less_count)
+			self.mut_none.append(self.mut_none_count)
 			#print("mutation =\n")
+		self.timeline.append(self.time)
+		self.time+=1
 		
 		
 
@@ -174,6 +203,8 @@ class Protein(object):
 		self.mut_prot()
 		self.update_prot()
 		#print(self.mutations)
+		
+
 		
 
 		
@@ -187,8 +218,8 @@ if __name__ == "__main__":
 	#print(proteine.proteome)
 	
 	#Test methode set_input
-	
-	rigid_input = np.random.random_integers(0,1,Protein.w)
+	rest = proteine.w - proteine.w//3 -5
+	rigid_input = [1]*(proteine.w//3)+[0]*5+[1]*rest
 	proteine.set_input(rigid_input)
 	
 	"""
@@ -202,7 +233,23 @@ if __name__ == "__main__":
 	#Mise a jour de la proteine selon l'input
 	proteine.update_prot()
 	
+	while(proteine.fitness < proteine.w):
+		proteine.run_once()
+		
+	plt.xscale('log')
+	plt.yscale('log')
+	plt.xlim(1, proteine.time)
+	#plt
+	plt.scatter(proteine.timeline, proteine.mut_plus, s=1, c='g', marker='o', label = 'beneficial')
+	plt.scatter(proteine.timeline, proteine.mut_less, s=1, c='r', marker='o', label = 'deleterious')
+	plt.scatter(proteine.timeline, proteine.mut_none, s=1, c='black', marker='o', label = 'neutral')
 	
+	
+	plt.legend(loc="upper left")
+	plt.show()
+	
+	
+	"""
 	#Visualisation des caracteristiques shearable et rigid
 	#La ligne 0 de la proteine est a gauche
 	tabshear = np.zeros((proteine.w, proteine.h))
@@ -230,7 +277,7 @@ if __name__ == "__main__":
 	for i in range(proteine.w):
 		somme += sum(aci.rigid==1 for aci in proteine.proteome[i])
 	#print(somme) #Nombre d'aa rigides (50)
-	
+	"""
 
 	
 
