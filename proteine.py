@@ -38,7 +38,19 @@ class Protein(object):
 				aminoacid.column = i #de 0 a 29			
 				self.proteome[i,j] = aminoacid
 
-					
+			
+			
+			
+	def get_genome(self):
+		list_genome = []
+		for i in range(Protein.w*ac.Acide.nb_links) :
+			for j in range(Protein.h-1):
+				list_genome.append(self.genome[i,j+1])
+		return list_genome
+		
+		
+		
+				
 	#riggid_list est un tableau de 1 et 0 qui donne la rigidite des aa en premiere ligne. sig = 0 entraine s = 1
 	def set_input(self, rigid_list):
 		for i in range(Protein.w) : #La taille de la liste doit etre egale a w 
@@ -198,13 +210,32 @@ class Protein(object):
 		
 
 
-
+	"""
 	def run_once(self) :
 		self.mut_prot()
 		self.update_prot()
 		#print(self.mutations)
+	"""
 		
-
+	def run_once(self):
+		while(proteine.fitness < proteine.w):
+			proteine.mut_prot()
+			
+			
+	def find_sols(self, number):
+		i = 0
+		solutions = open('solutions.txt','a+')
+		self.run_once()
+		print("fini")
+		while(i<number):
+			#line = solutions.readline()
+			#for line in solutions:
+			#	print(line)
+			#	if line != str(self.get_genome()):
+			solutions.write(str(self.get_genome())+"\n")
+			proteine.mut_prot()
+			i+=1
+		#Supprimer les doublons par la suite
 		
 
 		
@@ -233,9 +264,21 @@ if __name__ == "__main__":
 	#Mise a jour de la proteine selon l'input
 	proteine.update_prot()
 	
-	while(proteine.fitness < proteine.w):
-		proteine.run_once()
+	
+	#Temps d'exécution
+	t0 = time.time()
+	
+	proteine.find_sols(100000)
+	
+	tt =time.time()-t0
+	print(tt)
+	
 		
+	
+	
+	#Affichage evolution du nombre de mutations délétaires, benefiques ou neutres
+	"""
+	proteine.run_once()
 	plt.xscale('log')
 	plt.yscale('log')
 	plt.xlim(1, proteine.time)
@@ -247,7 +290,7 @@ if __name__ == "__main__":
 	
 	plt.legend(loc="upper left")
 	plt.show()
-	
+	"""
 	
 	"""
 	#Visualisation des caracteristiques shearable et rigid

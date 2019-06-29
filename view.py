@@ -95,7 +95,8 @@ if __name__ == "__main__":
 		if proteine.fitness == proteine.w :
 			mysquare.pause = True
 		if mysquare.pause == False:
-			proteine.run_once()
+			proteine.mut_prot()
+			#proteine.run_once()
 			mysquare.update_ovals(proteine.proteome)
 			
 			space = (1/1000)*1000
@@ -138,7 +139,7 @@ if __name__ == "__main__":
 	frame2.pack(side = 'top')
 	
 	
-		
+	
 	mysquare = WorldView(frame1)
 	mysquare.pack(side = "left")
 	
