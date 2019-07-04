@@ -44,9 +44,11 @@ class Protein(object):
 	def get_genome(self):
 		list_genome = []
 		for i in range(Protein.w*ac.Acide.nb_links) :
-			for j in range(Protein.h-1):
-				list_genome.append(self.genome[i,j+1])
+			for j in range (1, Protein.h):
+				list_genome.append(self.genome[i,j])
 		return list_genome
+		
+	
 		
 		
 		
@@ -204,8 +206,9 @@ class Protein(object):
 			self.mut_less.append(self.mut_less_count)
 			self.mut_none.append(self.mut_none_count)
 			#print("mutation =\n")
-		self.timeline.append(self.time)
 		self.time+=1
+		self.timeline.append(self.time)
+		
 		
 		
 
@@ -221,20 +224,30 @@ class Protein(object):
 		while(proteine.fitness < proteine.w):
 			proteine.mut_prot()
 			
-			
+	#Ecriture d'un nombre donné de solutions dans un fichier
 	def find_sols(self, number):
 		i = 0
-		solutions = open('solutions.txt','a+')
+		solutions = open('solutions.txt','w+')
 		self.run_once()
 		print("fini")
 		while(i<number):
-			#line = solutions.readline()
+			string_gen = str(self.get_genome())
+			linelist = solutions.readlines()
+			line_written = False
+			for line in linelist :
+				if string_gen in line:
+					line_written = True
+					break
+			if not line_written :
+				solutions.write(string_gen +"\n")
+				proteine.mut_prot()
+				i+=1
+				
+				
 			#for line in solutions:
 			#	print(line)
 			#	if line != str(self.get_genome()):
-			solutions.write(str(self.get_genome())+"\n")
-			proteine.mut_prot()
-			i+=1
+			
 		#Supprimer les doublons par la suite
 		
 
@@ -268,16 +281,16 @@ if __name__ == "__main__":
 	#Temps d'exécution
 	t0 = time.time()
 	
-	proteine.find_sols(100000)
+	proteine.find_sols(100)
 	
 	tt =time.time()-t0
 	print(tt)
 	
 		
 	
-	
-	#Affichage evolution du nombre de mutations délétaires, benefiques ou neutres
 	"""
+	#Affichage evolution du nombre de mutations délétaires, benefiques ou neutres
+	
 	proteine.run_once()
 	plt.xscale('log')
 	plt.yscale('log')
