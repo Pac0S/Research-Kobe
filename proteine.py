@@ -24,36 +24,40 @@ class Protein(object):
 		self.mut_plus_count = 0
 		self.mut_less = []
 		self.mut_less_count = 0
-		self.mut_none =  []
+		self.mut_none = []
 		self.mut_none_count = 0
 		self.timeline = []
 		self.time = 0
-		self.fitness =  0
+		self.fitness = 0
 		
 		
 		for i in range (Protein.w) :
 			for j in range (Protein.h) :		
-				aminoacid = ac.Acide(genome[5 * i : 5 * i + 5, j])		
-				aminoacid.line = j #La liste commence en bas a gauche : de 0 a 17
-				aminoacid.column = i #de 0 a 29			
+				aminoacid = ac.Acide(genome[5 * i : 5 * i + 5, j])			
 				self.proteome[i,j] = aminoacid
+				aminoacid.line = j
+				aminoacid.column = i
 
 			
 			
 			
 	def get_genome(self):
 		list_genome = []
-		for i in range(Protein.w*ac.Acide.nb_links) :
-			for j in range (1, Protein.h):
+		for j in range (1, Protein.h):
+			for i in range(Protein.w*ac.Acide.nb_links) :
 				list_genome.append(self.genome[i,j])
 		return list_genome
 		
-	
-		
+	def get_shearable_list(self):
+		list_shearable = []
+		for j in range (1, Protein.h):
+			for i in range(Protein.w) :
+				list_shearable.append(self.proteome[i,j].shearable)
+		return list_shearable
 		
 		
 				
-	#riggid_list est un tableau de 1 et 0 qui donne la rigidite des aa en premiere ligne. sig = 0 entraine s = 1
+	#rigid_list est un tableau de 1 et 0 qui donne la rigidite des aa en premiere ligne. sig = 0 entraine s = 1
 	def set_input(self, rigid_list):
 		for i in range(Protein.w) : #La taille de la liste doit etre egale a w 
 			self.proteome[i,0].rigid = rigid_list[i]
@@ -73,7 +77,7 @@ class Protein(object):
 		
 
 			
-	#Mise a jour de la proteine en fonction des aa voisins  (au dela d'une certaine ligne pour eviter les operations inutiles apres mutations)
+	#Mise a jour de la proteine en fonction des aa voisins (au dela d'une certaine ligne pour eviter les operations inutiles apres mutations)
 	def update_prot(self):
 		for j in range (1, Protein.h) :
 			for i in range (Protein.w) :
@@ -112,7 +116,7 @@ class Protein(object):
 					#link += 1
 				
 				#Mise a jour des proprietes de l'acide
-				if  rigid >=2 :
+				if rigid >=2 :
 					self.proteome[i,j].rigid = 1
 				else :
 					self.proteome[i,j].rigid = 0
@@ -132,7 +136,7 @@ class Protein(object):
 		#Write in file the values of rigid and sheable for the aa of the 11 first lines
 		myfile = open("data.txt", "w+")
 		for j in range(10):
-			myfile.write("\n\n\n Line " +  str(j) + "\n\n")
+			myfile.write("\n\n\n Line " + str(j) + "\n\n")
 			for i in range(Protein.w):
 				myfile.write(str(i) + " : " + str(self.proteome[i,j].sequence)+ "\n Rigid : " + str(self.proteome[i,j].rigid) + " ||| Shearable : " + str(self.proteome[i,j].shearable) + "\n\n")
 				#print(i, self.proteome[i,1].sequence)
@@ -211,23 +215,15 @@ class Protein(object):
 		
 		
 		
-
-
-	"""
-	def run_once(self) :
-		self.mut_prot()
-		self.update_prot()
-		#print(self.mutations)
-	"""
-		
 	def run_once(self):
 		while(proteine.fitness < proteine.w):
 			proteine.mut_prot()
 			
-	#Ecriture d'un nombre donné de solutions dans un fichier
-	def find_sols(self, number):
+		
+	#Ecriture d'un nombre donné de solutions de sequence dans un fichier
+	def gen_sols(self, number):
 		i = 0
-		solutions = open('solutions.txt','w+')
+		solutions = open('solutions_gen.txt','w+')
 		self.run_once()
 		print("fini")
 		while(i<number):
@@ -236,20 +232,64 @@ class Protein(object):
 			line_written = False
 			for line in linelist :
 				if string_gen in line:
+					print("found")
 					line_written = True
 					break
 			if not line_written :
 				solutions.write(string_gen +"\n")
 				proteine.mut_prot()
-				i+=1
+			i+=1
+		solutions.close()
 				
-				
-			#for line in solutions:
-			#	print(line)
-			#	if line != str(self.get_genome()):
-			
-		#Supprimer les doublons par la suite
+	#Ecriture d'un nombre donné de solutions de conformation dans un fichier
+	
+	def shear_sols(self, number):
+		i = 0
 		
+		self.run_once()
+		print("fini")
+		while(i<number):
+			solutions = open('solutions_shear.txt','w+')
+			reader = open('solutions_shear.txt','r')
+			string_shear = str(self.get_shearable_list())
+			#print("string : "+ string_shear + "\n\n")
+			linelist = reader.readlines()
+			#print((linelist))
+			line_written = False
+			for line in linelist :
+				#(line)
+				#print("string : "+ string_shear + "\n\n")
+				if string_shear in line:
+					print("found")
+					line_written = True
+					break
+			if not line_written :
+				solutions.write(string_shear +"\n")
+				proteine.mut_prot()
+				i+=1
+			reader.close()
+			solutions.close()
+		
+		
+	def svd_shear(self):
+		shear_list = []
+		#Stockage des solutions dans un np array
+		with open('solutions_shear.txt','r') as sols :
+			l = 0
+			for lines in sols :
+				l+=1
+				for i in range(Protein.w*(Protein.h-1)):
+					value = lines[3*i+1]
+					shear_list.append(int(value))
+					
+		print(len(shear_list))
+		svd_np = np.array(shear_list).reshape(Protein.w * (Protein.h-1), l);
+		svd_np = np.unique(svd_np, axis = 1)
+		print(svd_np.shape)
+		
+		
+		
+
 
 		
 if __name__ == "__main__":
@@ -266,31 +306,30 @@ if __name__ == "__main__":
 	rigid_input = [1]*(proteine.w//3)+[0]*5+[1]*rest
 	proteine.set_input(rigid_input)
 	
-	"""
-	print(len(proteine.genome))#2700
-	print(Protein.h*Protein.w)
-	print(len(proteine.proteome)) #540
-	"""
 	
-	print("")
-
 	#Mise a jour de la proteine selon l'input
 	proteine.update_prot()
 	
 	
+	
 	#Temps d'exécution
+	
 	t0 = time.time()
 	
-	proteine.find_sols(100)
+	#proteine.gen_sols(100)
+	proteine.shear_sols(100)
 	
 	tt =time.time()-t0
 	print(tt)
 	
-		
 	
-	"""
+	
+	print(proteine.svd_shear())
+	
+	
+	
 	#Affichage evolution du nombre de mutations délétaires, benefiques ou neutres
-	
+	"""
 	proteine.run_once()
 	plt.xscale('log')
 	plt.yscale('log')
@@ -305,8 +344,9 @@ if __name__ == "__main__":
 	plt.show()
 	"""
 	
-	"""
+	
 	#Visualisation des caracteristiques shearable et rigid
+	"""
 	#La ligne 0 de la proteine est a gauche
 	tabshear = np.zeros((proteine.w, proteine.h))
 	for i in range (proteine.w):

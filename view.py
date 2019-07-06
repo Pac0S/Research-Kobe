@@ -5,6 +5,8 @@ import time
 
 
 class WorldView(tk.Canvas):
+
+	keep_going = False
 	
 	def __init__(self, window, w=pt.Protein.w * 20, h=(pt.Protein.h+2) * 20, color="black"):
 		tk.Canvas.__init__(self, window, width = w, height = h, bg = color) 
@@ -22,15 +24,18 @@ class WorldView(tk.Canvas):
 			self.pause = True
 		else:
 			self.pause = False
+			
 		
 	def draw_ovals(self, proteome):
 		for i in range (proteome.shape[0]):
 			for j in range (proteome.shape[1]):
 				aa = proteome[i,j]
+				
 				if aa.rigid == 0 and aa.shearable == 0 : #Fluid non shearable : Red
 					oval = self.create_oval(aa.column*20, aa.line*20, (aa.column+1)*20, (aa.line+1)*20, fill = "Red")
 					#print(aa.column*10,aa.line*10, (aa.column+1)*10, (aa.line+1)*10, "Draw red")
 					self.list_ovals[i,j] = oval
+					
 					
 				elif aa.rigid == 0 and aa.shearable == 1 : #Fluid shearable : Blue
 					oval = self.create_oval(aa.column*20, aa.line*20, (aa.column+1)*20, (aa.line+1)*20, fill = "Blue")
@@ -93,7 +98,9 @@ if __name__ == "__main__":
 		global proteine
 		global mysquare
 		if proteine.fitness == proteine.w :
-			mysquare.pause = True
+			if WorldView.keep_going == False:
+				mysquare.pause = True
+				WorldView.keep_going =True
 		if mysquare.pause == False:
 			proteine.mut_prot()
 			#proteine.run_once()
