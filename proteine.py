@@ -245,30 +245,28 @@ class Protein(object):
 	
 	def shear_sols(self, number):
 		i = 0
-		
 		self.run_once()
-		print("fini")
+		print("Solution found")
+		found = 0
 		while(i<number):
-			solutions = open('solutions_shear.txt','w+')
+			solutions = open('solutions_shear.txt','a+')
 			reader = open('solutions_shear.txt','r')
 			string_shear = str(self.get_shearable_list())
-			#print("string : "+ string_shear + "\n\n")
 			linelist = reader.readlines()
-			#print((linelist))
 			line_written = False
 			for line in linelist :
-				#(line)
-				#print("string : "+ string_shear + "\n\n")
 				if string_shear in line:
-					print("found")
+					found += 1
 					line_written = True
 					break
 			if not line_written :
 				solutions.write(string_shear +"\n")
-				proteine.mut_prot()
 				i+=1
+			proteine.mut_prot()
 			reader.close()
 			solutions.close()
+		print(found)
+		
 		
 		
 	def svd_shear(self):
@@ -283,9 +281,20 @@ class Protein(object):
 					shear_list.append(int(value))
 					
 		print(len(shear_list))
-		svd_np = np.array(shear_list).reshape(Protein.w * (Protein.h-1), l);
-		svd_np = np.unique(svd_np, axis = 1)
+		svd_np = np.array(shear_list).reshape(l, Protein.w * (Protein.h-1));
+		svd_np = np.unique(svd_np, axis = 0)
 		print(svd_np.shape)
+		u, s, v = np.linalg.svd(svd_np, full_matrices=True)
+		print(u.shape, s.shape, v.shape)
+		mean = v[1,:]
+		mean = mean.reshape(17,30)
+		print(mean.shape)
+		#print(max(v))
+		
+		fig, ax = plt.subplots()
+		im = ax.imshow(mean)
+		fig.tight_layout()
+		plt.show()
 		
 		
 		
@@ -317,7 +326,7 @@ if __name__ == "__main__":
 	t0 = time.time()
 	
 	#proteine.gen_sols(100)
-	proteine.shear_sols(100)
+	#proteine.shear_sols(100)
 	
 	tt =time.time()-t0
 	print(tt)
