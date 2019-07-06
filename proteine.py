@@ -223,23 +223,28 @@ class Protein(object):
 	#Ecriture d'un nombre donné de solutions de sequence dans un fichier
 	def gen_sols(self, number):
 		i = 0
-		solutions = open('solutions_gen.txt','w+')
 		self.run_once()
-		print("fini")
+		print("Solution found")
+		found = 0
 		while(i<number):
+			solutions = open('solutions_gen.txt','a+')
+			reader = open('solutions_gen.txt','r')
 			string_gen = str(self.get_genome())
-			linelist = solutions.readlines()
+			linelist = reader.readlines()
 			line_written = False
 			for line in linelist :
 				if string_gen in line:
-					print("found")
+					found += 1
 					line_written = True
 					break
 			if not line_written :
 				solutions.write(string_gen +"\n")
-				proteine.mut_prot()
-			i+=1
-		solutions.close()
+				i+=1
+				print(i)
+			proteine.mut_prot()
+			reader.close()
+			solutions.close()
+		print(found)
 				
 	#Ecriture d'un nombre donné de solutions de conformation dans un fichier
 	
@@ -262,6 +267,7 @@ class Protein(object):
 			if not line_written :
 				solutions.write(string_shear +"\n")
 				i+=1
+				print(i)
 			proteine.mut_prot()
 			reader.close()
 			solutions.close()
@@ -279,23 +285,29 @@ class Protein(object):
 				for i in range(Protein.w*(Protein.h-1)):
 					value = lines[3*i+1]
 					shear_list.append(int(value))
-					
-		print(len(shear_list))
 		svd_np = np.array(shear_list).reshape(l, Protein.w * (Protein.h-1));
 		svd_np = np.unique(svd_np, axis = 0)
-		print(svd_np.shape)
+		print("Size of matrix for svd : " + str(svd_np.shape))
 		u, s, v = np.linalg.svd(svd_np, full_matrices=True)
-		print(u.shape, s.shape, v.shape)
-		mean = v[1,:]
-		mean = mean.reshape(17,30)
-		print(mean.shape)
-		#print(max(v))
+		print("Left singular vectors : " + str(u.shape) + "\nMatrix sigma : " + str(s.shape) + "\nRight singular vectors : " + str(v.shape))
+		s_vec = v[1,:]
+		s_vec = s_vec.reshape(17,30)
 		
 		fig, ax = plt.subplots()
-		im = ax.imshow(mean)
+		im = ax.imshow(s_vec, cmap = "bwr")
 		fig.tight_layout()
 		plt.show()
 		
+		
+		print("Max singular value : " + str(np.amax(s)))
+		s_round = np.round(s, 0)
+		s_unique, freq = np.unique(s_round, return_counts = True)
+		print(s_unique)
+		plt.yscale('log')
+		
+		plt.bar(s_unique, height = freq, color= "red")
+		plt.xlim(0,200)
+		plt.show()
 		
 		
 
@@ -326,14 +338,15 @@ if __name__ == "__main__":
 	t0 = time.time()
 	
 	#proteine.gen_sols(100)
-	#proteine.shear_sols(100)
+	#proteine.shear_sols(10000)
 	
 	tt =time.time()-t0
 	print(tt)
 	
 	
+	#Affichage d'un vecteurs singulier choisi (heatmap)
 	
-	print(proteine.svd_shear())
+	proteine.svd_shear()
 	
 	
 	
