@@ -17,6 +17,11 @@ class Acide(object):
 			self.shearable = np.random.randint(2)
 		self.line = 0
 		self.column = 0
+		self.is_defective = False
+		
+	def defective(self) :
+		self.sequence = [0,0,0,0,0]
+		self.is_defective = True
 	
 	
 	def mutation(self, link):

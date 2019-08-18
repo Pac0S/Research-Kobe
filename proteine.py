@@ -13,7 +13,7 @@ class Protein(object):
 	#Variables globales
 	h = 18 #Columns
 	w = 30 #Lines
-	output = [[1]*(w//3)+[0]*5+[1]*(w - w//3 -5),[0]*(w//3)+[1]*5+[0]*(w - w//3 -5)] #[Rigid sequence, Shearable sequence]
+	output = [[1]*10+[0]*5+[1]*15,[0]*10+[1]*5+[0]*15] #[Rigid sequence, Shearable sequence]
 
 	#def __init__(self, genome = np.random.randint(2, size=(30*ac.Acide.nb_links, 18)) , proteome = np.empty([30, 18], dtype = object)):
 	def __init__(self, genome = np.random.choice(2, size=(30*ac.Acide.nb_links, 18), p = [0.3,0.7]) , proteome = np.empty([30, 18], dtype = object)):
@@ -37,7 +37,7 @@ class Protein(object):
 				self.proteome[i,j] = aminoacid
 				aminoacid.line = j
 				aminoacid.column = i
-
+	
 			
 			
 			
@@ -79,8 +79,13 @@ class Protein(object):
 			
 	#Mise a jour de la proteine en fonction des aa voisins (au dela d'une certaine ligne pour eviter les operations inutiles apres mutations)
 	def update_prot(self):
+		
+		
 		for j in range (1, Protein.h) :
 			for i in range (Protein.w) :
+				#Debugger
+				#if i == 10 and j ==10 :
+				#	import ipdb; ipdb.set_trace()
 				rigid = 0 #Nombre de voisins connectés rigides (<=5)
 				shearable = 0 #Nombre de voisins connectés shearables (<=3)
 				
@@ -96,7 +101,7 @@ class Protein(object):
 					else :
 						neighbor2 =neighbor
 					if self.proteome[i,j].sequence[link]!=0 :
-						if self.proteome[neighbor2, j-1].rigid == 1 :
+						if self.proteome[neighbor2, j-1].rigid == 1 and not self.proteome[neighbor2, j-1].is_defective :
 							rigid += 1
 					link += 1
 
@@ -111,7 +116,7 @@ class Protein(object):
 					else :
 						neighbor2 =neighbor				
 					#if self.proteome[i,j].sequence[link+1]!=0 :
-					if self.proteome[neighbor2, j-1].shearable == 1 :	
+					if self.proteome[neighbor2, j-1].shearable == 1 and not self.proteome[neighbor2, j-1].is_defective : #A defective acid will be unable to transfer its shearability and rigidity
 						shearable += 1
 					#link += 1
 				
@@ -169,7 +174,8 @@ class Protein(object):
 		"""
 		
 		#Mise a jour de l'acide amine
-		self.proteome[column_prot, line].mutation(index)
+		if not self.proteome[column_prot, line].is_defective :
+			self.proteome[column_prot, line].mutation(index)
 		#Mise a jour des proprietes de l'aa
 		self.update_prot()
 		
@@ -227,8 +233,8 @@ class Protein(object):
 		print("Solution found")
 		found = 0
 		while(i<number):
-			solutions = open('solutions_gen.txt','a+')
-			reader = open('solutions_gen.txt','r')
+			solutions = open('solutions_gen_S.txt','a+')
+			reader = open('solutions_gen_S.txt','r')
 			string_gen = str(self.get_genome())
 			linelist = reader.readlines()
 			line_written = False
@@ -254,8 +260,8 @@ class Protein(object):
 		print("Solution found")
 		found = 0
 		while(i<number):
-			solutions = open('solutions_shear.txt','a+')
-			reader = open('solutions_shear.txt','r')
+			solutions = open('obstacle_shear_S.txt','a+')
+			reader = open('obstacle_shear_S.txt','r')
 			string_shear = str(self.get_shearable_list())
 			linelist = reader.readlines()
 			line_written = False
@@ -275,10 +281,46 @@ class Protein(object):
 		
 		
 		
-	def svd_shear(self):
+	def svd_gen(self, eigen):
 		shear_list = []
 		#Stockage des solutions dans un np array
-		with open('solutions_shear.txt','r') as sols :
+		with open('solutions_gen_S.txt','r') as sols :
+			l = 0
+			for lines in sols :
+				l+=1
+				for i in range(Protein.w*5*(Protein.h-1)):
+					value = lines[3*i+1]
+					shear_list.append(int(value))
+		svd_np = np.array(shear_list).reshape(l, Protein.w* 5 * (Protein.h-1));
+		svd_np = np.unique(svd_np, axis = 0)
+		print("Size of matrix for svd : " + str(svd_np.shape))
+		u, s, v = np.linalg.svd(svd_np, full_matrices=True)
+		print("Left singular vectors : " + str(u.shape) + "\nMatrix sigma : " + str(s.shape) + "\nRight singular vectors : " + str(v.shape))
+		s_vec = v[eigen,:]
+		s_vec = s_vec.reshape(Protein.h-1,Protein.w*ac.Acide.nb_links)
+		
+		fig, ax = plt.subplots()
+		im = ax.imshow(s_vec, cmap = "bwr")
+		fig.tight_layout()
+		plt.show()
+		
+		
+		print("First singular vectors : " + str(s[0:7]))
+		s_round = np.round(s, 0)
+		s_unique, freq = np.unique(s_round, return_counts = True)
+		print(s_unique)
+		plt.yscale('log')
+		
+		plt.bar(s_unique, height = freq, color= "red")
+		plt.xlim(0,2000)
+		plt.show()
+		
+			
+		
+	def svd_shear(self, eigen):
+		shear_list = []
+		#Stockage des solutions dans un np array
+		with open('obstacle_shear_S.txt','r') as sols :
 			l = 0
 			for lines in sols :
 				l+=1
@@ -290,7 +332,7 @@ class Protein(object):
 		print("Size of matrix for svd : " + str(svd_np.shape))
 		u, s, v = np.linalg.svd(svd_np, full_matrices=True)
 		print("Left singular vectors : " + str(u.shape) + "\nMatrix sigma : " + str(s.shape) + "\nRight singular vectors : " + str(v.shape))
-		s_vec = v[1,:]
+		s_vec = v[eigen,:]
 		s_vec = s_vec.reshape(17,30)
 		
 		fig, ax = plt.subplots()
@@ -299,15 +341,16 @@ class Protein(object):
 		plt.show()
 		
 		
-		print("Max singular value : " + str(np.amax(s)))
+		print("First singular vectors : " + str(s[0:7]))
 		s_round = np.round(s, 0)
 		s_unique, freq = np.unique(s_round, return_counts = True)
 		print(s_unique)
 		plt.yscale('log')
 		
 		plt.bar(s_unique, height = freq, color= "red")
-		plt.xlim(0,200)
+		plt.xlim(0,220)
 		plt.show()
+		
 		
 		
 
@@ -337,16 +380,38 @@ if __name__ == "__main__":
 	
 	t0 = time.time()
 	
-	#proteine.gen_sols(100)
-	#proteine.shear_sols(10000)
+	"""
+	#proteine.gen_sols(48551)
+	proteine.shear_sols(12000)
 	
-	tt =time.time()-t0
-	print(tt)
+	tt = time.time()-t0
+	h = tt//3600
+	rh = tt%3600
+	m = rh//60
+	s = rh%60
+	print(str(h)+"h " + str(m) + "m " + (str(m) + "s"))
+	
+	"""
+	
+	t0 = time.time()
+	
+	proteine.svd_shear(0)
+	proteine.svd_shear(1)
+	proteine.svd_shear(2)
+	#proteine.svd_gen(0)
+	
+	
+	tt = time.time()-t0
+	h = tt//3600
+	rh = tt%3600
+	m = rh//60
+	s = rh%60
+	print(str(h)+"h " + str(m) + "m " + (str(m) + "s"))
 	
 	
 	#Affichage d'un vecteurs singulier choisi (heatmap)
 	
-	proteine.svd_shear()
+	
 	
 	
 	
