@@ -139,7 +139,7 @@ if __name__ == "__main__":
 	def draw_aa():
 		global proteine, mysquare
 		proteine = pt.Protein()
-		proteine.proteome[10,10].defective()
+		proteine.defective_ac(12,9)
 		rest = pt.Protein.w - pt.Protein.w//3 -5
 		rigid_input = [1]*(pt.Protein.w//3)+[0]*5+[1]*rest
 		proteine.set_input(rigid_input)

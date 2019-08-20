@@ -13,7 +13,7 @@ class Protein(object):
 	#Variables globales
 	h = 18 #Columns
 	w = 30 #Lines
-	output = [[1]*10+[0]*5+[1]*15,[0]*10+[1]*5+[0]*15] #[Rigid sequence, Shearable sequence]
+	output = [[1]*12+[0]*5+[1]*13,[0]*12+[1]*5+[0]*13] #[Rigid sequence, Shearable sequence]
 
 	#def __init__(self, genome = np.random.randint(2, size=(30*ac.Acide.nb_links, 18)) , proteome = np.empty([30, 18], dtype = object)):
 	def __init__(self, genome = np.random.choice(2, size=(30*ac.Acide.nb_links, 18), p = [0.3,0.7]) , proteome = np.empty([30, 18], dtype = object)):
@@ -74,6 +74,10 @@ class Protein(object):
 			if aa.shearable == Protein.output[1][i] and aa.rigid == Protein.output[0][i]:
 				self.fitness += 1
 				
+	def defective_ac(self,column,line) :
+		for i in range(5) :
+			self.genome[column*5 + i , line] = 0 #On modifie aussi le genome
+		self.proteome[column,line].defective()
 		
 
 			
@@ -159,23 +163,27 @@ class Protein(object):
 		#Mutation genome et mise a jour sequence acide amine
 		line = np.random.random_integers(self.h-1)#On choisit une ligne et une colonne a muter aleatoirement dans le genome
 		column = np.random.random_integers(self.w*ac.Acide.nb_links-1) #Attention les colonnes du genome sont 5* plus nombreuses que celles du  proteome
-		if self.genome[column,line]==0 :
-			self.genome[column,line]==1
-		else :
-			self.genome[column,line]==0
+		
 		column_prot = column//ac.Acide.nb_links
 		index = column%ac.Acide.nb_links
 		
-		"""
-		print("Genome column : ", column)
-		print("Genome line : ", line)
-		print("Proteome column : ", column_prot)
-		print("Index of mutation : " ,index)
-		"""
-		
-		#Mise a jour de l'acide amine
 		if not self.proteome[column_prot, line].is_defective :
+			if self.genome[column,line]==0 :
+				self.genome[column,line]==1
+			else :
+				self.genome[column,line]==0
+
+			"""
+			print("Genome column : ", column)
+			print("Genome line : ", line)
+			print("Proteome column : ", column_prot)
+			print("Index of mutation : " ,index)
+			"""
+			
+			#Mise a jour de l'acide amine correspondant
 			self.proteome[column_prot, line].mutation(index)
+			
+		
 		#Mise a jour des proprietes de l'aa
 		self.update_prot()
 		
@@ -363,11 +371,13 @@ if __name__ == "__main__":
 	#Creation d'une proteine
 	
 	proteine = Protein()
-	#print(proteine.proteome)
+	proteine.defective_ac(12,9)
 	
 	#Test methode set_input
-	rest = proteine.w - proteine.w//3 -5
-	rigid_input = [1]*(proteine.w//3)+[0]*5+[1]*rest
+	
+	#rest = proteine.w - proteine.w//3 -5
+	#rigid_input = [1]*(proteine.w//3)+[0]*5+[1]*rest
+	rigid_input = [1]*12 + [0]*5 + [1]*13
 	proteine.set_input(rigid_input)
 	
 	
@@ -380,9 +390,9 @@ if __name__ == "__main__":
 	
 	t0 = time.time()
 	
-	"""
+	
 	#proteine.gen_sols(48551)
-	proteine.shear_sols(12000)
+	proteine.shear_sols(6000)
 	
 	tt = time.time()-t0
 	h = tt//3600
@@ -391,7 +401,7 @@ if __name__ == "__main__":
 	s = rh%60
 	print(str(h)+"h " + str(m) + "m " + (str(m) + "s"))
 	
-	"""
+	
 	
 	t0 = time.time()
 	
