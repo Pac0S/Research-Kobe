@@ -13,7 +13,7 @@ class Protein(object):
 	#Variables globales
 	h = 18 #Columns
 	w = 30 #Lines
-	output = [[1]*12+[0]*5+[1]*13,[0]*12+[1]*5+[0]*13] #[Rigid sequence, Shearable sequence]
+	output = [[1]*10+[0]*5+[1]*15,[0]*10+[1]*5+[0]*15] #[Rigid sequence, Shearable sequence]
 
 	#def __init__(self, genome = np.random.randint(2, size=(30*ac.Acide.nb_links, 18)) , proteome = np.empty([30, 18], dtype = object)):
 	def __init__(self, genome = np.random.choice(2, size=(30*ac.Acide.nb_links, 18), p = [0.3,0.7]) , proteome = np.empty([30, 18], dtype = object)):
@@ -299,6 +299,7 @@ class Protein(object):
 				for i in range(Protein.w*5*(Protein.h-1)):
 					value = lines[3*i+1]
 					shear_list.append(int(value))
+		sols.close()
 		svd_np = np.array(shear_list).reshape(l, Protein.w* 5 * (Protein.h-1));
 		svd_np = np.unique(svd_np, axis = 0)
 		print("Size of matrix for svd : " + str(svd_np.shape))
@@ -319,7 +320,7 @@ class Protein(object):
 		print(s_unique)
 		plt.yscale('log')
 		
-		plt.bar(s_unique, height = freq, color= "red")
+		plt.bar(s_unique, height = freq, color= "blue")
 		plt.xlim(0,2000)
 		plt.show()
 		
@@ -335,6 +336,7 @@ class Protein(object):
 				for i in range(Protein.w*(Protein.h-1)):
 					value = lines[3*i+1]
 					shear_list.append(int(value))
+		sols.close()
 		svd_np = np.array(shear_list).reshape(l, Protein.w * (Protein.h-1));
 		svd_np = np.unique(svd_np, axis = 0)
 		print("Size of matrix for svd : " + str(svd_np.shape))
@@ -346,7 +348,8 @@ class Protein(object):
 		fig, ax = plt.subplots()
 		im = ax.imshow(s_vec, cmap = "bwr")
 		fig.tight_layout()
-		plt.show()
+		plt.savefig('svd_obstacleS_11_0_6000_%s.png'% eigen)
+		#plt.show()
 		
 		
 		print("First singular vectors : " + str(s[0:7]))
@@ -357,7 +360,8 @@ class Protein(object):
 		
 		plt.bar(s_unique, height = freq, color= "red")
 		plt.xlim(0,220)
-		plt.show()
+		plt.savefig('spectrum_obstacleS_11_0_6000')
+		#plt.show()
 		
 		
 		
@@ -371,13 +375,13 @@ if __name__ == "__main__":
 	#Creation d'une proteine
 	
 	proteine = Protein()
-	proteine.defective_ac(12,9)
+	proteine.defective_ac(11,0)
 	
 	#Test methode set_input
 	
 	#rest = proteine.w - proteine.w//3 -5
 	#rigid_input = [1]*(proteine.w//3)+[0]*5+[1]*rest
-	rigid_input = [1]*12 + [0]*5 + [1]*13
+	rigid_input = [1]*10 + [0]*5 + [1]*15
 	proteine.set_input(rigid_input)
 	
 	
@@ -392,7 +396,7 @@ if __name__ == "__main__":
 	
 	
 	#proteine.gen_sols(48551)
-	proteine.shear_sols(6000)
+	#proteine.shear_sols(6000)
 	
 	tt = time.time()-t0
 	h = tt//3600
@@ -404,11 +408,12 @@ if __name__ == "__main__":
 	
 	
 	t0 = time.time()
-	
+	'''
 	proteine.svd_shear(0)
 	proteine.svd_shear(1)
 	proteine.svd_shear(2)
-	#proteine.svd_gen(0)
+	'''
+	proteine.svd_gen(0)
 	
 	
 	tt = time.time()-t0
